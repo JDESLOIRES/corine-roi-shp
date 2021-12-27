@@ -186,6 +186,16 @@ class CLCRadius:
 
     def vectorize_corine_around_point(self, lon, lat,
                                       path_corine_wgs84=r'./CLC_2018/u2018_raster100m/U2018_CLC2018_V2020_20u1_4326_crop.tif'):
+        '''
+        Get shapefile given a lon, lat and the path where corine is stored in epsg:4326 projection
+        Args:
+            lon (float): longitude centroid from the Region of Interest
+            lat (float): latitude centroid from the Region of Interest
+            path_corine_wgs84 (str): path where the corine .tif file is saved (epsg:4326 format)
+
+        Returns:
+
+        '''
         print('Vectorize output file')
         path_in = self.get_subdirectory_file(path_corine_wgs84)
         self._mask_corine_around_point(lon, lat,
