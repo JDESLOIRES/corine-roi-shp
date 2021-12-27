@@ -17,7 +17,7 @@ This function also computes the relative surface of each Code and groups.
 
 To use the libraries required to run the script, you can directly create the environment from the .yml file :
 ```python
-cd LCPreprocessing
+cd corine-roi-shp
 conda env create -f environment.yml
-conda activate aphyd-env
+conda activate corine-env
 '''

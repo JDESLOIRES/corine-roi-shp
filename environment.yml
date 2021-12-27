@@ -1,4 +1,4 @@
-name: aphyd-env
+name: corine-env
 channels:
   - conda-forge
 dependencies:
