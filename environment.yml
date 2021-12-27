@@ -1,0 +1,15 @@
+name: aphyd-env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.7
+  - gdal
+  - fiona
+  - rasterio
+  - pip
+  - pip :
+    - sentinelhub 
+    - -r file:requirements.txt
+    - boto3
+
+
