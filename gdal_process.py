@@ -27,7 +27,7 @@ class CLCRadius:
         self.radius = radius
 
     @staticmethod
-    def get_subdirectory_file(path):
+    def _get_subdirectory_file(path):
         return '/'.join(path.split('/')[:-1])
 
     def _change_crs(self,
@@ -46,7 +46,7 @@ class CLCRadius:
         print('Change crs from original Corine .tif file from 3035 to 4326')
         os.chdir(str(pathlib.Path().resolve()))
         input = gdal.Open(path_raster)
-        path_in = self.get_subdirectory_file(path_raster)
+        path_in = self._get_subdirectory_file(path_raster)
 
         if not os.path.exists(path_raster):
             # change CRS into degrees
@@ -64,7 +64,7 @@ class CLCRadius:
             gdal.Translate(os.path.join(path_in,'U2018_CLC2018_V2020_20u1_4326.tif'),
                            os.path.join(path_in,'tempo_4326.tif'), options=topts)
             os.remove(os.path.join(path_in,'tempo_4326.tif'))
-        if not extent is None:
+        if extent is not None:
             # crop the image given the extent of a country (here, France)
             es.crop_all([os.path.join(path_in,'U2018_CLC2018_V2020_20u1_4326.tif')],
                         path_in, extent,
@@ -121,7 +121,7 @@ class CLCRadius:
         '''
         print('Mask Corine around radius')
 
-        path_in = self.get_subdirectory_file(path_corine_wgs84)
+        path_in = self._get_subdirectory_file(path_corine_wgs84)
         with rasterio.open(path_corine_wgs84) as src0:
             meta = src0.meta
             meta['nodata'] = 0
@@ -180,9 +180,7 @@ class CLCRadius:
         shutil.rmtree('./radius_' + str(self.radius))
 
         output.crs = 'epsg:4326'
-        join_left_df = gpd.overlay(df, output, how='intersection')
-
-        return join_left_df
+        return gpd.overlay(df, output, how='intersection')
 
     def vectorize_corine_around_point(self, lon, lat,
                                       path_corine_wgs84=r'./CLC_2018/u2018_raster100m/U2018_CLC2018_V2020_20u1_4326_crop.tif'):
@@ -197,7 +195,7 @@ class CLCRadius:
 
         '''
         print('Vectorize output file')
-        path_in = self.get_subdirectory_file(path_corine_wgs84)
+        path_in = self._get_subdirectory_file(path_corine_wgs84)
         self._mask_corine_around_point(lon, lat,
                                        path_corine_wgs84= path_corine_wgs84)
 
@@ -231,36 +229,5 @@ class CLCRadius:
   
         return gpd_output
 
-    def add_labels(self,
-                   gpd_output,
-                   regrouping_file = './CLC_2018/regroupement_classe_corinne_01_06_21.csv'):
 
-        '''
-        Add labels from the created .csv file with columns Code (CLC2018) and groups (name of the groups)
-        Args:
-            output_folder (str) : Folder where the shapefile is created
-            regrouping_file (str) : csv file where we have labels
-
-        Returns:
-            gpd.GeoDataFrame with diversity indicators (relative surfaces) by code and groups
-        '''
-
-        # Aggregate the labels (44) from Corine into specific given classes define in the files 'regroupement_classe_corinne_01_06_21'
-        regrouping = pd.read_csv(regrouping_file, encoding="ISO-8859-1", sep=',')
-        regrouping.Code = regrouping.Code.astype(str)
-        gpd_output.Code = gpd_output.Code.astype(str)
-        gpd_output = pd.merge(gpd_output, regrouping[['libelle_fr', 'Code', 'groups']],
-                              on='Code', how='left')
-
-        # Compute relative surf from each class
-        surf_agg = gpd_output[['Index', 'groups', 'surf_obj', 'surf_rel']].groupby(
-            ['Index', 'groups']).agg('sum')
-
-        surf_agg.reset_index(inplace=True)
-        surf_agg.columns = ['Index', 'groups', 'surf_obj_g', 'surf_rel_g']
-
-        gpd_output = pd.merge(gpd_output, surf_agg, on=['Index', 'groups'], how='left')
-        gpd_output.crs = 'epsg:4326'
-
-        return gpd_output
 
