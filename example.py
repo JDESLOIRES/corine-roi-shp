@@ -6,7 +6,7 @@ from gdal_process import CLCRadius
 #Corine Land Cover
 #Get contours of France
 
-france = gpd.read_file('./France_shapefile/fr_10km.shp')
+france = gpd.read_file('./shapefile_france/fr_10km.shp')
 france['ID'] = 1
 extent = france.dissolve('ID').to_crs({'init': 'epsg:4326'})
 
